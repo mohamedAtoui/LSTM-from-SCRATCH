@@ -22,5 +22,5 @@ class Sigmoid:
 
     def backward(self, dvalues):
         sigm = self.inputs
-        deriv = np.ultiply(sigm, (1 - sigm))
+        deriv = np.multiply(sigm, (1 - sigm))
         self.dinputs = np.multiply(deriv, dvalues)

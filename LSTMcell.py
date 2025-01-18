@@ -79,7 +79,21 @@ class LSTM():
         [H, C, SigmF, SigmI, SigmO, Tanh1, Tanh2, F, O, I, C_tilde]=self.LSTMCell(X_t, ht, ct, SigmF, SigmI, SigmO, Tanh1, Tanh2, 
                  self.H, self.C, self.F, self.O, self.I, self.C_tilde) 
 
+        self.F = F
+        self.O = O
+        self.I = I
+        self.C_tilde = C_tilde
 
+        self.H = H
+        self.C = C
+
+
+        self.sigmF = SigmF
+        self.sigmI = SigmI
+        self.sigmO = SigmO
+        self.Tanh1 = Tanh1
+        self.Tanh2 = Tanh2
+ 
     def LSTMCell(self, X_t, ht, ct, SigmF, SigmI, SigmO, Tanh1, Tanh2, 
                  H, C, F, O, I, C_tilde):
         
@@ -126,7 +140,109 @@ class LSTM():
 
 
 
+    def backward(self,dvalues):
+        
+        #dh  = inputs from the dense layer
+
+        T = self.T
+        H = self.H
+        C = self.C
+
+        O = self.O
+        I = self.I
+        C_tilde = self.C_tilde
+
+        X_t = self.X_t
+
+        sigmF = self.sigmF
+        sigmI = self.sigmI
+        sigmo = self.sigmO
+        Tanh1 = self.Tanh1
+        Tanh2 = self.Tanh2
+
+        dht = dvalues[-1,:].reshape(self.n_neurons, 1)
+
+        #Back propagation:
+        for t in reversed(range(T)):
+
+            xt = X_t[t].reshape(1,1)
+
+            Tanh2[t].backward(dht)
+            dtanh2 = Tanh2[t].dinputs
+
+            dhtdtanh = np.multiply(O[t], dtanh2)
+
+            dctdft = np.multiply(dhtdtanh, C[t-1])
+            dctdit = np.multiply(dhtdtanh, C_tilde[t])
+            dctdct_tilde = np.multiply(dhtdtanh, I[t])
+
+            Tanh1[t].backward(dctdct_tilde)
+            dtanh1 = Tanh1[t].dinputs
+
+            sigmF[t].backward(dctdft)
+            dsigmf = sigmF[t].dinputs
+
+            sigmI[t].backward(dctdit)
+            dsigmi = sigmI[t].dinputs
+
+            sigmo[t].backward(np.multiply(dht, Tanh2[t].output))
+            dsigmo = sigmo[t].dinputs
+            
+            
+            dsigmfdUf = np.dot(dsigmf,xt)
+            dsigmfdWf  = np.dot(dsigmf, H[t-1].T)
+
+            self.dUf += dsigmfdUf
+            self.dWf += dsigmfdWf
+            self.dbf += dsigmf
+            
+
+            dsigmfdUi = np.dot(dsigmi,xt)
+            dsigmfdWi  = np.dot(dsigmi, H[t-1].T)
+
+            self.dUi += dsigmfdUi
+            self.dWi += dsigmfdWi
+            self.dbi += dsigmi
+
+
+            dsigmfdUo = np.dot(dsigmo,xt)
+            dsigmfdWo  = np.dot(dsigmo, H[t-1].T)
+
+            self.dUo += dsigmfdUo
+            self.dWo += dsigmfdWo
+            self.dbo += dsigmo
+
+
+            dtanh1dUg = np.dot(dtanh1, xt)
+            dtanh1dWg = np.dot(dtanh1, H[t-1].T)
+
+            self.dUg += dtanh1dUg
+            self.dWg += dtanh1dWg
+            self.dbg += dtanh1
+
+
+
+            dht = np.dot(self.Wf, dsigmf) + np.dot(self.Wi, dsigmi) +\
+                np.dot(self.Wo, dsigmo) + np.dot(self.Wg, dtanh1) +\
+                dvalues[t-1, :].reshape(self.n_neurons, 1)
+
+
+        self.H = H
 
 
 
 
+class Layer_Dense():
+
+    def __init__(self, n_inputs, n_neurons):
+        self.weights = 0.1*np.random.randn(n_inputs, n_neurons)
+        self.biases = np.zeros((1,n_neurons))
+
+    def forward(self, inputs):
+        self.output = np.dot(inputs, self.weights) + self.biases
+        self.inputs = inputs
+
+    def backward(self, dvalues):
+        self.dweights = np.dot(self.inputs.T, dvalues)
+        self.dbiases = np.sum(dvalues, axis = 0, keepdims = True)
+        self.dinputs = np.dot(dvalues, self.weights.T)
