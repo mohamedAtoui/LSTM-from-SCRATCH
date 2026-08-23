@@ -1,0 +1,9 @@
+# virtualenvs — never commit these
+myenv/
+venv/
+.venv/
+env/
+
+__pycache__/
+*.py[cod]
+.DS_Store

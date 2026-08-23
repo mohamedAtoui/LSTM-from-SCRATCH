@@ -7,24 +7,24 @@ class LSTM():
         self.n_neurons = n_neurons
 
         #forget gate
-        self.Uf = 0.1*np.random.rand(n_neurons, 1 )
-        self.bf = 0.1*np.random.rand(n_neurons, 1 )
-        self.Wf = 0.1*np.random.rand(n_neurons, n_neurons)
+        self.Uf = np.zeros((n_neurons, 1 ))
+        self.bf = np.zeros((n_neurons, 1 ))
+        self.Wf = np.zeros((n_neurons, n_neurons))
 
         #Input gate
-        self.Ui = 0.1*np.random.rand(n_neurons, 1 )
-        self.bi = 0.1*np.random.rand(n_neurons, 1 )
-        self.Wi = 0.1*np.random.rand(n_neurons, n_neurons)
+        self.Ui = np.zeros((n_neurons, 1 ))
+        self.bi = np.zeros((n_neurons, 1 ))
+        self.Wi = np.zeros((n_neurons, n_neurons))
 
         #Output gate
-        self.Uo = 0.1*np.random.rand(n_neurons, 1 )
-        self.bo = 0.1*np.random.rand(n_neurons, 1 )
-        self.Wo = 0.1*np.random.rand(n_neurons, n_neurons)
+        self.Uo = np.zeros((n_neurons, 1 ))
+        self.bo = np.zeros((n_neurons, 1 ))
+        self.Wo = np.zeros((n_neurons, n_neurons))
 
         #c ~ 
-        self.Ug = 0.1*np.random.rand(n_neurons, 1 )
-        self.bg = 0.1*np.random.rand(n_neurons, 1 )
-        self.Wg = 0.1*np.random.rand(n_neurons, n_neurons)
+        self.Ug = np.zeros((n_neurons, 1 ))
+        self.bg = np.zeros((n_neurons, 1 ))
+        self.Wg = np.zeros((n_neurons, n_neurons))
 
     def forward(self, X_t):
 
@@ -45,24 +45,24 @@ class LSTM():
 
 
         #forget gate
-        self.dUf = 0.1*np.random.rand(n_neurons, 1 )
-        self.dbf = 0.1*np.random.rand(n_neurons, 1 )
-        self.dWf = 0.1*np.random.rand(n_neurons, n_neurons)
+        self.dUf = np.zeros((n_neurons, 1 ))
+        self.dbf = np.zeros((n_neurons, 1 ))
+        self.dWf = np.zeros((n_neurons, n_neurons))
 
         #Input gate
-        self.dUi = 0.1*np.random.rand(n_neurons, 1 )
-        self.dbi = 0.1*np.random.rand(n_neurons, 1 )
-        self.dWi = 0.1*np.random.rand(n_neurons, n_neurons)
+        self.dUi = np.zeros((n_neurons, 1 ))
+        self.dbi = np.zeros((n_neurons, 1 ))
+        self.dWi = np.zeros((n_neurons, n_neurons))
 
         #Output gate
-        self.dUo = 0.1*np.random.rand(n_neurons, 1 )
-        self.dbo = 0.1*np.random.rand(n_neurons, 1 )
-        self.dWo = 0.1*np.random.rand(n_neurons, n_neurons)
+        self.dUo = np.zeros((n_neurons, 1 ))
+        self.dbo = np.zeros((n_neurons, 1 ))
+        self.dWo = np.zeros((n_neurons, n_neurons))
 
         #c ~ 
-        self.dUg = 0.1*np.random.rand(n_neurons, 1 )
-        self.dbg = 0.1*np.random.rand(n_neurons, 1 )
-        self.dWg = 0.1*np.random.rand(n_neurons, n_neurons)
+        self.dUg = np.zeros((n_neurons, 1 ))
+        self.dbg = np.zeros((n_neurons, 1 ))
+        self.dWg = np.zeros((n_neurons, n_neurons))
 
 
         SigmF = [Sigmoid() for t in range(T)]
@@ -112,7 +112,7 @@ class LSTM():
             it = SigmI[t].output
 
             #output gate
-            outo = np.dot(self.Uf, xt) + np.dot(self.Wf, ht) + self.bf
+            outo = np.dot(self.Uo, xt) + np.dot(self.Wo, ht) + self.bo
             SigmO[t].forward(outo)
             ot = SigmO[t].output
 
